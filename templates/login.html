@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login Admin | Humairoh</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="login-page">
+
+    <main class="login-container">
+
+        <div class="login-box">
+
+            <!-- Logo dan judul -->
+            <div class="login-header">
+
+                <div class="login-logo">H</div>
+
+                <p class="login-label">PORTFOLIO WEBSITE</p>
+
+                <h1>Welcome <span>Back!</span></h1>
+
+                <p class="login-description">
+                    Silakan login untuk masuk ke halaman
+                    pengelolaan portofolio.
+                </p>
+
+            </div>
+
+
+            <!-- Pesan kesalahan login -->
+            {% if error %}
+                <div class="login-error">
+                    {{ error }}
+                </div>
+            {% endif %}
+
+
+            <!-- Form Login -->
+            <form action="{{ url_for('login') }}" method="POST">
+
+                <div class="form-group">
+
+                    <label for="username">Username</label>
+
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        placeholder="Masukkan username"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="password">Password</label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Masukkan password"
+                        required
+                    >
+
+                </div>
+
+
+                <button type="submit" class="login-button">
+                    Login Sekarang
+                    <span>→</span>
+                </button>
+
+            </form>
+
+
+            <!-- Kembali ke website -->
+            <div class="login-footer">
+
+                <a href="/">
+                    ← Kembali ke Website
+                </a>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <footer>
+        <p>© 2026 Portfolio Humairoh. All Rights Reserved.</p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,169 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard Admin | Humairoh</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="admin-dashboard">
+
+    <nav class="admin-navbar">
+        <h2 class="logo">AdminPanel<span>.</span></h2>
+
+        <div class="admin-nav-links">
+            <a href="/">Lihat Website</a>
+            <a href="/logout" class="logout-link">Logout</a>
+        </div>
+    </nav>
+
+    <main class="admin-container">
+
+        <!-- HEADER -->
+        <section class="admin-welcome">
+
+            <div>
+                <p class="greeting">HALO, ADMIN!</p>
+                <h1>Dashboard <span>Admin</span></h1>
+                <p class="admin-subtitle">
+                    Kelola proyek portofolio kamu dengan mudah.
+                </p>
+            </div>
+
+            <div class="admin-profile">
+                <div class="admin-avatar">H</div>
+                <div>
+                    <h3>Humairoh</h3>
+                    <p>Administrator</p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- SUMMARY -->
+        <section class="admin-summary">
+
+            <div class="summary-card">
+                <div>
+                    <p>Total Proyek</p>
+                    <h2>{{ projects|length }}</h2>
+                    <span>Proyek tersimpan</span>
+                </div>
+                <div class="summary-icon">▣</div>
+            </div>
+
+            <div class="summary-card">
+                <div>
+                    <p>Status Website</p>
+                    <h2 class="status-active">Aktif</h2>
+                    <span>Website portofolio</span>
+                </div>
+                <div class="summary-icon">●</div>
+            </div>
+
+        </section>
+
+        <!-- PROJECT LIST -->
+        <section class="admin-project-section">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Kelola Proyek</h2>
+                    <p>Daftar proyek yang sudah kamu tambahkan.</p>
+                </div>
+
+                <a href="{{ url_for('tambah') }}"
+                   class="admin-add-btn">
+                    + Tambah Proyek
+                </a>
+            </div>
+
+            <div class="admin-project-list">
+
+                {% for project in projects %}
+
+                <article class="admin-project-card">
+
+                    <div class="project-card-top">
+                        <span class="project-number">
+                            PROYEK #{{ loop.index }}
+                        </span>
+
+                        <span class="project-status">
+                            ● Tersimpan
+                        </span>
+                    </div>
+
+                    <h3>{{ project.nama }}</h3>
+
+                    <p class="project-description">
+                        {{ project.deskripsi }}
+                    </p>
+
+                    <div class="technology-box">
+                        <span>TEKNOLOGI</span>
+                        <p>{{ project.teknologi }}</p>
+                    </div>
+
+                    {% if project.link_proyek %}
+                    <a href="{{ project.link_proyek }}"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="admin-project-link">
+                        Lihat Link Proyek ↗
+                    </a>
+                    {% endif %}
+
+                    <div class="project-actions">
+
+                        <a href="{{ url_for('edit', id=project.id) }}"
+                           class="admin-edit-btn">
+                            Edit
+                        </a>
+
+                        <form action="{{ url_for('hapus', id=project.id) }}"
+                              method="POST"
+                              onsubmit="return confirm('Yakin ingin menghapus proyek ini?')">
+
+                            <button type="submit" class="admin-delete-btn">
+                                Hapus
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </article>
+
+                {% else %}
+
+                <div class="empty-project">
+                    <h3>Belum Ada Proyek</h3>
+                    <p>
+                        Silakan tambahkan proyek pertama kamu.
+                    </p>
+                    <a href="{{ url_for('tambah') }}"
+                       class="admin-add-btn">
+                        + Tambah Proyek
+                    </a>
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="admin-footer">
+        © 2026 Portfolio Humairoh. All Rights Reserved.
+    </footer>
+
+</body>
+</html>

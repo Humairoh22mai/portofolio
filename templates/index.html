@@ -1,0 +1,408 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Portfolio | Humairoh</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    
+    <nav class="navbar">
+    <h2 class="logo">Portfolio<span>.</span></h2>
+
+    <!-- Tombol garis tiga -->
+    <button class="menu-toggle" id="menu-toggle" aria-label="Buka menu">
+        ☰
+    </button>
+
+    <!-- Daftar menu -->
+    <ul class="nav-menu" id="nav-menu">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#contact">Contact</a></li>
+    </ul>
+</nav>
+
+
+
+    <!-- HOME -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+
+            <p class="greeting">HALO, SELAMAT DATANG!</p>
+
+            <h1>Saya <span>Humairoh</span></h1>
+
+            <h2>Mahasiswa Informatika</h2>
+
+            <p class="description">
+                Saya adalah mahasiswa Program Studi Informatika
+                di Universitas Nahdlatul Ulama Yogyakarta.
+                Saya sedang belajar pemrograman, pengembangan
+                website, dan teknologi informasi.
+            </p>
+
+            <div class="hero-buttons">
+                <a href="#about" class="btn">Tentang Saya</a>
+                <a href="#projects" class="btn btn-outline">
+                    Lihat Proyek
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+
+    
+<!-- ABOUT -->
+<section id="about" class="section">
+    <p class="greeting">KENALI SAYA</p>
+
+    <h1>Tentang <span>Saya</span></h1>
+
+    <div class="about-layout">
+
+        <!-- Foto Profil -->
+        <div class="about-photo">
+            <img
+                src="{{ url_for('static', filename='img/profile.jpeg') }}"
+                alt="Profile Image"
+            >
+        </div>
+
+        <!-- Informasi Profil -->
+        <div class="about-content">
+
+            <h2>Halo, Saya Humairoh!</h2>
+
+            <p>
+                Saya adalah mahasiswa Program Studi Informatika
+                di Universitas Nahdlatul Ulama Yogyakarta.
+                Saya memiliki ketertarikan dalam bidang teknologi
+                informasi, pemrograman, dan pengembangan website.
+            </p>
+
+            <p>
+                Saat ini saya terus belajar untuk meningkatkan
+                kemampuan dalam membuat aplikasi dan website.
+                Saya juga senang mencoba hal baru yang berkaitan
+                dengan teknologi.
+            </p>
+
+            <div class="profile-info">
+                <p><strong>Nama:</strong> Humairoh</p>
+                <p><strong>NIM:</strong> 251111010</p>
+                <p><strong>Universitas:</strong> Universitas Nahdlatul Ulama Yogyakarta</p>
+                <p><strong>Program Studi:</strong> Informatika</p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+    <!-- SKILLS -->
+    <section id="skills" class="section">
+        <p class="greeting">KEMAMPUAN SAYA</p>
+
+        <h1>My <span>Skills</span></h1>
+
+        <p class="description">
+            Beberapa teknologi yang sedang saya pelajari
+            dalam bidang Informatika.
+        </p>
+
+        <div class="skills-container">
+            <div class="skill-card">
+                <h3>HTML</h3>
+                <p>Membuat struktur halaman website.</p>
+            </div>
+
+            <div class="skill-card">
+                <h3>CSS</h3>
+                <p>Mengatur tampilan dan desain website.</p>
+            </div>
+
+            <div class="skill-card">
+                <h3>Python</h3>
+                <p>Mempelajari pemrograman menggunakan Python.</p>
+            </div>
+
+            <div class="skill-card">
+                <h3>Flask</h3>
+                <p>Membuat aplikasi website menggunakan Flask.</p>
+            </div>
+
+            <div class="skill-card">
+                <h3>MySQL / SQLite</h3>
+                <p>Mempelajari pengelolaan database.</p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- PROJECTS -->
+    <section id="projects" class="section">
+        <p class="greeting">HASIL KARYA SAYA</p>
+
+        <h1>My <span>Projects</span></h1>
+
+        <p class="description">
+            Berikut adalah beberapa proyek yang saya kerjakan.
+        </p>
+
+        <a href="{{ url_for('tambah') }}" class="btn">
+            + Tambah Proyek
+        </a>
+
+        <div class="project-list">
+
+            {% for project in projects %}
+
+            <div class="project-card">
+                <h2>{{ project.nama }}</h2>
+
+                <p>{{ project.deskripsi }}</p>
+
+                <p class="technology">
+                    Teknologi: {{ project.teknologi }}
+                </p>
+
+                <div class="project-actions">
+
+                    <a href="{{ url_for('edit', id=project.id) }}"
+                       class="btn">
+                        Edit
+                    </a>
+
+                    <form action="{{ url_for('hapus', id=project.id) }}"
+                          method="POST"
+                          onsubmit="return confirm('Yakin ingin menghapus proyek ini?')">
+
+                        <button type="submit" class="btn btn-delete">
+                            Hapus
+                        </button>
+
+                    </form>
+
+                </div>
+            </div>
+
+            {% else %}
+
+            <div class="empty-project">
+                <p>Belum ada proyek yang ditambahkan.</p>
+                <p>Silakan klik tombol Tambah Proyek.</p>
+            </div>
+
+            {% endfor %}
+
+        </div>
+    </section>
+
+
+   
+<!-- CONTACT SECTION -->
+<section id="contact" class="section contact-section">
+
+    <div class="contact-layout">
+
+        <!-- BAGIAN KIRI: INFORMASI KONTAK -->
+        <div class="contact-info">
+
+            <p class="contact-label">HUBUNGI SAYA</p>
+
+            <h1>
+                Tertarik Berkenalan atau Ingin
+                <span>Berdiskusi?</span>
+            </h1>
+
+            <p class="contact-description">
+                Terima kasih sudah mengunjungi website portofolio saya.
+                Saya terbuka untuk belajar, berdiskusi, dan berbagi
+                pengalaman mengenai teknologi informasi.
+            </p>
+
+            <!-- Informasi Nama -->
+            <div class="contact-item">
+
+                <div class="contact-icon">👤</div>
+
+                <div>
+                    <h3>Nama Lengkap</h3>
+                    <p>Humairoh</p>
+                </div>
+
+            </div>
+
+            <!-- Informasi Program Studi -->
+            <div class="contact-item">
+
+                <div class="contact-icon">🎓</div>
+
+                <div>
+                    <h3>Program Studi</h3>
+                    <p>Informatika</p>
+                </div>
+
+            </div>
+
+            <!-- Informasi Universitas -->
+            <div class="contact-item">
+
+                <div class="contact-icon">🏫</div>
+
+                <div>
+                    <h3>Universitas</h3>
+                    <p>Universitas Nahdlatul Ulama Yogyakarta</p>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- BAGIAN KANAN: FORMULIR PESAN -->
+        <div class="contact-form-box">
+
+            <h2>Kirim Pesan / Konsultasi</h2>
+
+            <p class="form-description">
+                Isi formulir di bawah ini untuk menghubungi saya.
+                Saya akan senang menerima pesan dari Anda.
+            </p>
+
+            <form action="#" method="POST">
+
+                <div class="contact-form-group">
+
+                    <label for="nama">1. Nama Lengkap</label>
+
+                    <input
+                        type="text"
+                        id="nama"
+                        name="nama"
+                        placeholder="Contoh: Budi Santoso"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="contact-form-group">
+
+                    <label for="email">2. Email</label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Contoh: budi@email.com"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="contact-form-group">
+
+                    <label for="pesan">3. Pesan atau Pertanyaan</label>
+
+                    <textarea
+                        id="pesan"
+                        name="pesan"
+                        rows="4"
+                        placeholder="Tuliskan pesan atau pertanyaan Anda..."
+                        required
+                    ></textarea>
+
+                </div>
+
+
+                <button type="submit" class="contact-submit">
+                    Kirim Pesan Sekarang →
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</section>
+
+    
+<footer class="footer">
+    <div class="footer-container">
+
+        <!-- Bagian Informasi -->
+        <div class="footer-info">
+            <h3>Informatika UNU Yogyakarta</h3>
+            <p>
+                Pusat unggulan pendidikan tinggi ilmu komputer dan teknologi
+                informasi di Yogyakarta yang mencetak generasi technopreneur
+                berakhlak mulia.
+            </p>
+        </div>
+
+        <!-- Navigasi Cepat -->
+        <div class="footer-nav">
+            <h4>Navigasi Cepat</h4>
+            <ul>
+                <li><a href="#home">Beranda</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+
+        <!-- Media Sosial -->
+        <div class="footer-social">
+            <h4>Media Sosial</h4>
+
+            <div class="social-icons">
+                <a href="https://www.instagram.com/humairohmee?dlrf=dXE1dmNjMGF2bGtx"
+                target="_blank">
+                    Instagram
+                </a>
+
+                <a href="https://github.com/Humairoh22mai"
+                target="_blank">
+                    Github
+                </a>
+
+                <a href="https://www.linkedin.com/in/username-kamu/"
+                target="_blank">
+                    LinkedIn
+                </a>
+
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- Bagian Copyright -->
+    <div class="footer-bottom">
+        <p>
+            © 2026 Program Studi Informatika - Universitas Nahdlatul
+            Ulama Yogyakarta. All rights reserved.
+        </p>
+
+        <p>Dibuat untuk memenuhi tugas UTS Praktikum Pemrograman Web</p>
+    </div>
+</footer>
+
+
+</body>
+</html>
