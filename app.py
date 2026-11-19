@@ -1,20 +1,54 @@
 
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session
-import sqlite3
+import os
+
+from flask import (
+    Flask, render_template, request,
+    redirect, url_for, session
+)
+
 from functools import wraps
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import (
+    generate_password_hash,
+    check_password_hash
+)
+from dotenv import load_dotenv
+from supabase import create_client
+
+
+# Membaca konfigurasi dari file .env
+load_dotenv()
 
 app = Flask(__name__)
 
-# Kunci session untuk pengembangan
-app.secret_key = "ganti-dengan-kunci-rahasia-kamu"
+app.secret_key = os.getenv(
+    "FLASK_SECRET_KEY",
+    "kunci-pengembangan-ganti-saat-deploy"
+)
 
-# Akun admin
+
+# =====================================
+# KONEKSI SUPABASE
+# =====================================
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise RuntimeError(
+        "SUPABASE_URL dan SUPABASE_KEY belum diatur."
+    )
+
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+
+# =====================================
+# AKUN ADMIN
+# =====================================
+
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD_HASH = generate_password_hash("admin123")
 
 
-# Memeriksa apakah admin sudah login
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -26,46 +60,20 @@ def login_required(f):
     return decorated_function
 
 
-app = Flask(__name__)
+# =====================================
+# HALAMAN HOME
+# =====================================
 
-# Menghubungkan program dengan database SQLite
-DATABASE = "database.db"
-
-
-# Fungsi untuk menghubungkan database
-def get_db_connection():
-    conn = sqlite3.connect(DATABASE)
-    conn.row_factory = sqlite3.Row
-    return conn
-
-
-# Membuat tabel proyek jika belum tersedia
-def init_db():
-    conn = get_db_connection()
-
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS projects (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nama TEXT NOT NULL,
-            deskripsi TEXT NOT NULL,
-            teknologi TEXT NOT NULL
-        )
-    """)
-
-    conn.commit()
-    conn.close()
-
-
-# Halaman utama
 @app.route("/")
 def index():
-    conn = get_db_connection()
+    hasil = (
+        supabase.table("projects")
+        .select("*")
+        .order("id", desc=True)
+        .execute()
+    )
 
-    data_proyek = conn.execute(
-        "SELECT * FROM projects ORDER BY id DESC"
-    ).fetchall()
-
-    conn.close()
+    data_proyek = hasil.data or []
 
     return render_template(
         "index.html",
@@ -73,20 +81,29 @@ def index():
     )
 
 
-# Halaman tentang saya
+# =====================================
+# HALAMAN ABOUT
+# =====================================
+
 @app.route("/about")
 def about():
     return render_template("about.html")
 
 
-# Menampilkan semua proyek
+# =====================================
+# HALAMAN PROJECTS
+# =====================================
+
 @app.route("/projects")
 def projects():
-    conn = get_db_connection()
-    data_proyek = conn.execute(
-        "SELECT * FROM projects ORDER BY id DESC"
-    ).fetchall()
-    conn.close()
+    hasil = (
+        supabase.table("projects")
+        .select("*")
+        .order("id", desc=True)
+        .execute()
+    )
+
+    data_proyek = hasil.data or []
 
     return render_template(
         "projects.html",
@@ -94,99 +111,97 @@ def projects():
     )
 
 
-# Menambahkan proyek baru
+# =====================================
+# TAMBAH PROYEK
+# =====================================
+
 @app.route("/tambah", methods=["GET", "POST"])
+@login_required
 def tambah():
+
     if request.method == "POST":
+
         nama = request.form["nama"]
         deskripsi = request.form["deskripsi"]
         teknologi = request.form["teknologi"]
+        link_proyek = request.form.get("link_proyek") or None
 
-        conn = get_db_connection()
-        conn.execute(
-            "INSERT INTO projects (nama, deskripsi, teknologi) VALUES (?, ?, ?)",
-            (nama, deskripsi, teknologi)
-        )
-        conn.commit()
-        conn.close()
+        supabase.table("projects").insert({
+            "nama": nama,
+            "deskripsi": deskripsi,
+            "teknologi": teknologi,
+            "link_proyek": link_proyek
+        }).execute()
 
-        return redirect(url_for("projects"))
+        return redirect(url_for("admin"))
 
     return render_template("tambah.html")
 
 
-# Mengedit proyek
+# =====================================
+# EDIT PROYEK
+# =====================================
+
 @app.route("/edit/<int:id>", methods=["GET", "POST"])
 @login_required
 def edit(id):
-    conn = get_db_connection()
 
-    proyek = conn.execute(
-        "SELECT * FROM projects WHERE id = ?",
-        (id,)
-    ).fetchone()
+    hasil = (
+        supabase.table("projects")
+        .select("*")
+        .eq("id", id)
+        .limit(1)
+        .execute()
+    )
 
-    if proyek is None:
-        conn.close()
+    data = hasil.data or []
+
+    if not data:
         return "Proyek tidak ditemukan", 404
 
+    proyek = data[0]
+
     if request.method == "POST":
+
         nama = request.form["nama"]
         deskripsi = request.form["deskripsi"]
         teknologi = request.form["teknologi"]
+        link_proyek = request.form.get("link_proyek") or None
 
-        conn.execute(
-            """UPDATE projects
-               SET nama = ?, deskripsi = ?, teknologi = ?
-               WHERE id = ?""",
-            (nama, deskripsi, teknologi, id)
-        )
+        supabase.table("projects").update({
+            "nama": nama,
+            "deskripsi": deskripsi,
+            "teknologi": teknologi,
+            "link_proyek": link_proyek
+        }).eq("id", id).execute()
 
-        conn.commit()
-        conn.close()
+        return redirect(url_for("admin"))
 
-        return redirect(url_for("projects"))
+    return render_template(
+        "edit.html",
+        project=proyek
+    )
 
-    conn.close()
-    return render_template("edit.html", project=proyek)
 
+# =====================================
+# HAPUS PROYEK
+# =====================================
 
-# Menghapus proyek
 @app.route("/hapus/<int:id>", methods=["POST"])
 @login_required
 def hapus(id):
-    conn = get_db_connection()
 
-    conn.execute(
-        "DELETE FROM projects WHERE id = ?",
-        (id,)
-    )
+    supabase.table("projects").delete().eq(
+        "id", id
+    ).execute()
 
-    conn.commit()
-    conn.close()
-
-    return redirect(url_for("projects"))
-
-# Kunci session untuk pengembangan
-app.secret_key = "ganti-dengan-kunci-rahasia-kamu"
-
-# Akun admin
-ADMIN_USERNAME = "admin"
-ADMIN_PASSWORD_HASH = generate_password_hash("admin123")
+    return redirect(url_for("admin"))
 
 
-# Memeriksa apakah admin sudah login
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not session.get("admin"):
-            return redirect(url_for("login"))
+# =====================================
+# LOGIN ADMIN
+# =====================================
 
-        return f(*args, **kwargs)
-
-    return decorated_function
-
-# Halaman Login Admin
 @app.route("/login", methods=["GET", "POST"])
 def login():
 
@@ -194,12 +209,16 @@ def login():
         return redirect(url_for("admin"))
 
     if request.method == "POST":
+
         username = request.form["username"]
         password = request.form["password"]
 
-        if (username == ADMIN_USERNAME and
-                check_password_hash(ADMIN_PASSWORD_HASH, password)):
-
+        if (
+            username == ADMIN_USERNAME
+            and check_password_hash(
+                ADMIN_PASSWORD_HASH, password
+            )
+        ):
             session["admin"] = True
             return redirect(url_for("admin"))
 
@@ -211,31 +230,42 @@ def login():
     return render_template("login.html")
 
 
-# Logout Admin
+# =====================================
+# LOGOUT ADMIN
+# =====================================
+
 @app.route("/logout")
 def logout():
     session.pop("admin", None)
     return redirect(url_for("login"))
 
-# Dashboard Admin
+
+# =====================================
+# DASHBOARD ADMIN
+# =====================================
+
 @app.route("/admin")
 @login_required
 def admin():
 
-    conn = get_db_connection()
+    hasil = (
+        supabase.table("projects")
+        .select("*")
+        .order("id", desc=True)
+        .execute()
+    )
 
-    data_proyek = conn.execute(
-        "SELECT * FROM projects ORDER BY id DESC"
-    ).fetchall()
-
-    conn.close()
+    data_proyek = hasil.data or []
 
     return render_template(
         "admin.html",
         projects=data_proyek
     )
 
-# Membuat database saat program dijalankan
+
+# =====================================
+# MENJALANKAN APLIKASI
+# =====================================
+
 if __name__ == "__main__":
-    init_db()
     app.run(debug=True)

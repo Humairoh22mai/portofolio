@@ -151,66 +151,35 @@
 
 
     <!-- PROJECTS -->
-    <section id="projects" class="section">
-        <p class="greeting">HASIL KARYA SAYA</p>
+<section id="projects" class="projects">
 
-        <h1>My <span>Projects</span></h1>
+    <div class="project-list">
+        {% for project in projects %}
+        <div class="project-card">
+            <h2>{{ project.nama }}</h2>
+            <p>{{ project.deskripsi }}</p>
 
-        <p class="description">
-            Berikut adalah beberapa proyek yang saya kerjakan.
-        </p>
+            <p class="technology">
+                Teknologi: {{ project.teknologi }}
+            </p>
 
-        <a href="{{ url_for('tambah') }}" class="btn">
-            + Tambah Proyek
-        </a>
-
-        <div class="project-list">
-
-            {% for project in projects %}
-
-            <div class="project-card">
-                <h2>{{ project.nama }}</h2>
-
-                <p>{{ project.deskripsi }}</p>
-
-                <p class="technology">
-                    Teknologi: {{ project.teknologi }}
-                </p>
-
-                <div class="project-actions">
-
-                    <a href="{{ url_for('edit', id=project.id) }}"
-                       class="btn">
-                        Edit
-                    </a>
-
-                    <form action="{{ url_for('hapus', id=project.id) }}"
-                          method="POST"
-                          onsubmit="return confirm('Yakin ingin menghapus proyek ini?')">
-
-                        <button type="submit" class="btn btn-delete">
-                            Hapus
-                        </button>
-
-                    </form>
-
-                </div>
-            </div>
-
-            {% else %}
-
-            <div class="empty-project">
-                <p>Belum ada proyek yang ditambahkan.</p>
-                <p>Silakan klik tombol Tambah Proyek.</p>
-            </div>
-
-            {% endfor %}
-
+            {% if project.link_proyek %}
+            <a href="{{ project.link_proyek }}"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="btn">
+                Lihat Proyek
+            </a>
+            {% endif %}
         </div>
-    </section>
 
+        {% else %}
+        <p>Belum ada proyek yang ditambahkan.</p>
+        {% endfor %}
+    </div>
 
-   
+</section>
+
 <!-- CONTACT SECTION -->
 <section id="contact" class="section contact-section">
 
